@@ -11,3 +11,11 @@ class ClientLocator:
 class S3Client(ClientLocator):
     def __init__(self):
         super().__init__('s3')
+
+class IAMClient(ClientLocator):
+    def __init__(self):
+        super().__init__('iam')
+
+class LambdaClient(ClientLocator):
+    def __init__(self):
+        super().__init__('lambda')
