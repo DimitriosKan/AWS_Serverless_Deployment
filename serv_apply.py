@@ -1,20 +1,23 @@
 from sample.s3_bucket import S3_Create
-from sample.lambda_function import Lambda_Create
-from locators.client_locator import S3Client
-from locators.client_locator import IAMClient
-from locators.client_locator import LambdaClient
+from sample.lambda_function import Lambda_Create, User_Check, Arn_Check
+from locators.client_locator import S3Client, IAMClient, LambdaClient, STSClient
 import os, time, sys
 from zipfile import ZipFile
 
 s3_client = S3Client().get_client()
 iam_client = IAMClient().get_client()
 lambda_client = LambdaClient().get_client()
+sts_client = STSClient().get_client()
 
 s3_cli = S3_Create(s3_client)
 iam_cli = Lambda_Create(iam_client)
 lamb_cli = Lambda_Create(lambda_client)
+sts_cli = User_Check(sts_client)
 
 bucket_name = 'fresh-bucket-but-boto3-2020'
+function_name = 'FancyLambdaFunction'
+policy_name = 'LambdaPolicy'
+role_name = 'LambdaRole'
 
 def create_bucket():
     s3_cli.create_bucket(bucket_name)
@@ -54,13 +57,18 @@ def deploy_webpage():
 
 # # Creation of Lambda infrastructure # #
 
+sts_response = sts_cli.get_caller()
+
 def iam_setup():
-    iam_cli.create_role()
-    print ('Role created')
-    iam_cli.create_policy()
-    print ('Policy created')
-    iam_cli.attach_policy()
-    print ('Policy attached to Role')
+    zeclass = Arn_Check()
+    policy_arn = zeclass.get_arn(sts_response, policy_name)
+
+    iam_cli.create_role(role_name)
+    print (f'Role "{role_name}" created')
+    iam_cli.create_policy(policy_name)
+    print (f'Policy "{policy_name}" created')
+    iam_cli.attach_policy(role_name, policy_arn)
+    print (f'Policy attached to Role "{role_name}"')
 
 def lambda_deploy():
     x = True
@@ -85,9 +93,9 @@ def lambda_deploy():
     with open('docs/function_test_hello.zip', 'rb') as f:
         zipped_code = f.read()
 
-    lamb_cli.create_lambda(zipped_code)
+    lamb_cli.create_lambda(zipped_code, function_name, sts_response)
     print ('Lambda Function created')
-    lamb_cli.invoke_lambda()
+    lamb_cli.invoke_lambda(function_name)
     print ('Lambda Function invoked')
 
     os.remove('docs/function_test_hello.zip')
@@ -99,5 +107,5 @@ if __name__ == "__main__":
     upload_files()
     deploy_webpage()
 
-    #iam_setup()
-    #lambda_deploy()
+    iam_setup()
+    lambda_deploy()

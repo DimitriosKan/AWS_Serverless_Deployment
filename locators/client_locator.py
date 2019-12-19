@@ -19,3 +19,8 @@ class IAMClient(ClientLocator):
 class LambdaClient(ClientLocator):
     def __init__(self):
         super().__init__('lambda')
+
+class STSClient(ClientLocator):
+    def __init__(self):
+        super().__init__('sts')
+
