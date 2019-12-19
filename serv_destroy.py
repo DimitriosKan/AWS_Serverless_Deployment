@@ -13,15 +13,22 @@ def fetch_buckets():
 def empty_and_destroy_buckets():
     # if length of list is above 0 run the 'for' loop
     # iterate through list and run commands on individual instances
-    if len(fetch_buckets()) != 0:
-        for bckt in fetch_buckets():
-            print (f'Destroying "{bckt}" bucket ...')
-            s3_res.delete_files(bckt)
-            print (f'Bucket "{bckt}" has been emptied')
-            s3_res.destroy_bucket(bckt)
-            print (f'{bckt} was destroyed.')
+
+    proj_bucket = 'fresh-bucket-but-boto3-2020'
+
+    print ('The buckets I could find are:')
+    for bckt in fetch_buckets():
+        print (bckt)
+    print ('')
+
+    if proj_bucket in fetch_buckets():
+        print (f'Destroying "{proj_bucket}" bucket ...')
+        s3_res.delete_files(proj_bucket)
+        print (f'Bucket "{proj_bucket}" has been emptied')
+        s3_res.destroy_bucket(proj_bucket)
+        print (f'{proj_bucket} was destroyed.')
     # if it is not, run confirmation of no instances in list
-    elif len(fetch_buckets()) == 0:
+    else:
         print ("We are on the 'else' statement ... Probably there's nothing to clean up")
         print ("Yay!")
 

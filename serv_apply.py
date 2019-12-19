@@ -93,11 +93,11 @@ def lambda_deploy():
     os.remove('docs/function_test_hello.zip')
 
 if __name__ == "__main__":
-    #create_bucket()
-    #create_bucket_policy()
+    create_bucket()
+    create_bucket_policy()
     
-    #upload_files()
-    #deploy_webpage()
+    upload_files()
+    deploy_webpage()
 
-    iam_setup()
-    lambda_deploy()
+    #iam_setup()
+    #lambda_deploy()
