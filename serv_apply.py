@@ -85,12 +85,23 @@ def lambda_deploy():
         print (']')
     
     # zip up that file
-    zipObj = ZipFile('docs/function_test_hello.zip', 'w')
-    zipObj.write('docs/function_test_hello.py')
-    zipObj.close()
+    file_dir = os.chdir('docs/')
+    list_folder = os.listdir(file_dir)
+    cwd = os.getcwd()
+    
+    #print (cwd)
+
+    zipObj = ZipFile(f'{cwd}/function_test_hello.zip', 'w')
+
+    if 'function_test_hello.py' in list_folder:
+        #print ('Yas')
+        zipObj.write('function_test_hello.py')
+        zipObj.close()
+    else:
+        print ('Nah')
 
     # open file before sending it over
-    with open('docs/function_test_hello.zip', 'rb') as f:
+    with open(f'{cwd}/function_test_hello.zip', 'rb') as f:
         zipped_code = f.read()
 
     lamb_cli.create_lambda(zipped_code, function_name, sts_response)
@@ -98,7 +109,7 @@ def lambda_deploy():
     lamb_cli.invoke_lambda(function_name)
     print ('Lambda Function invoked')
 
-    os.remove('docs/function_test_hello.zip')
+    os.remove(f'{cwd}/function_test_hello.zip')
 
 if __name__ == "__main__":
     create_bucket()
