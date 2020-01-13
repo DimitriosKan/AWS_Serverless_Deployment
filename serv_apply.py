@@ -1,6 +1,9 @@
+#!/usr/bin/python3
+
 from sample.s3_bucket import S3_Create
 from sample.lambda_function import Lambda_Create, User_Check, Arn_Check
-from locators.client_locator import S3Client, IAMClient, LambdaClient, STSClient
+from sample.api_gateway import Lambda_Arn, API_Gateway_Create
+from locators.client_locator import S3Client, IAMClient, LambdaClient, STSClient, APIGatewayClient
 import os, time, sys
 from zipfile import ZipFile
 
@@ -8,11 +11,13 @@ s3_client = S3Client().get_client()
 iam_client = IAMClient().get_client()
 lambda_client = LambdaClient().get_client()
 sts_client = STSClient().get_client()
+apigateway_client = APIGatewayClient().get_client()
 
 s3_cli = S3_Create(s3_client)
 iam_cli = Lambda_Create(iam_client)
 lamb_cli = Lambda_Create(lambda_client)
 sts_cli = User_Check(sts_client)
+apigateway_cli = API_Gateway_Create(apigateway_client)
 
 bucket_name = 'fresh-bucket-but-boto3-2020'
 function_name = 'FancyLambdaFunction'
@@ -111,12 +116,20 @@ def lambda_deploy():
 
     os.remove(f'{cwd}/function_test_hello.zip')
 
-if __name__ == "__main__":
-    create_bucket()
-    create_bucket_policy()
-    
-    upload_files()
-    deploy_webpage()
+# Set-up API Gateway #
+def create_rest_api():
+    apigateway_cli.create_rest_api()
+    print ('God API created')
 
-    iam_setup()
-    lambda_deploy()
+
+if __name__ == "__main__":
+    #create_bucket()
+    #create_bucket_policy()
+    
+    #upload_files()
+    #deploy_webpage()
+
+    #iam_setup()
+    #lambda_deploy()
+
+    create_rest_api()

@@ -24,3 +24,7 @@ class STSClient(ClientLocator):
     def __init__(self):
         super().__init__('sts')
 
+class APIGatewayClient(ClientLocator):
+    def __init__(self):
+        super().__init__('apigateway')
+
