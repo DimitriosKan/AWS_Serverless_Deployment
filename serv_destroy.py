@@ -1,17 +1,20 @@
 from sample.s3_bucket import S3_Delete
 from sample.lambda_function import Lambda_Delete, User_Check, Arn_Check
-from locators.client_locator import S3Client, IAMClient, LambdaClient, STSClient
+from sample.api_gateway import API_Gateway_Delete
+from locators.client_locator import S3Client, IAMClient, LambdaClient, STSClient, APIGatewayClient
 from locators.resource_locator import S3Resource
 
 s3_resource = S3Resource().get_resource()
 iam_client = IAMClient().get_client()
 lambda_client = LambdaClient().get_client()
 sts_client = STSClient().get_client()
+apigateway_client = APIGatewayClient().get_client()
 
 s3_res = S3_Delete(s3_resource)
 iam_cli = Lambda_Delete(iam_client)
 lamb_cli = Lambda_Delete(lambda_client)
 sts_cli = User_Check(sts_client)
+apigateway_cli = API_Gateway_Delete(apigateway_client)
 
 function_name = 'FancyLambdaFunction'
 policy_name = 'LambdaPolicy'
@@ -43,6 +46,11 @@ def empty_and_destroy_buckets():
         print ("We are on the 'else' statement ... Probably there's nothing to clean up")
         print ("Yay!")
 
+def destroy_api_gateway():
+    rest_api_id = apigateway_cli.find_rest_api()
+
+    apigateway_cli.delete_rest_api(rest_api_id)
+
 def destroy_lambda():
     try:
         lamb_cli.delete_function(function_name)
@@ -67,3 +75,6 @@ if __name__ == "__main__":
 
     destroy_lambda()
     destroy_iams()
+
+    destroy_api_gateway()
+

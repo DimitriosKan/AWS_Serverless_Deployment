@@ -18,11 +18,15 @@ iam_cli = Lambda_Create(iam_client)
 lamb_cli = Lambda_Create(lambda_client)
 sts_cli = User_Check(sts_client)
 apigateway_cli = API_Gateway_Create(apigateway_client)
+lambaperm_cli = API_Gateway_Create(lambda_client)
+lambarn_cli = Lambda_Arn(lambda_client)
+
 
 bucket_name = 'fresh-bucket-but-boto3-2020'
 function_name = 'FancyLambdaFunction'
 policy_name = 'LambdaPolicy'
 role_name = 'LambdaRole'
+aws_region = 'eu-west-2'
 
 def create_bucket():
     s3_cli.create_bucket(bucket_name)
@@ -118,18 +122,36 @@ def lambda_deploy():
 
 # Set-up API Gateway #
 def create_rest_api():
-    apigateway_cli.create_rest_api()
-    print ('God API created')
+    find_lamb = lambarn_cli.find_lamb(function_name)
 
+    restapi_id = apigateway_cli.create_rest_api()
+    
+    parent_restapi = apigateway_cli.get_parent_resource(restapi_id)
+
+    apigateway_cli.create_api_gateway(restapi_id, parent_restapi)
+
+    child_restapi = apigateway_cli.get_child_resource(restapi_id)
+
+    apigateway_cli.put_method(restapi_id, child_restapi)
+
+    uri = apigateway_cli.uri_construct(aws_region, find_lamb)
+
+    apigateway_cli.put_integration(restapi_id, child_restapi, uri)
+
+    apigateway_cli.create_deployment(restapi_id)
+
+    source_arn = apigateway_cli.source_arn_construct(aws_region, restapi_id)
+
+    lambaperm_cli.add_permission(source_arn)
 
 if __name__ == "__main__":
-    #create_bucket()
-    #create_bucket_policy()
+    create_bucket()
+    create_bucket_policy()
     
-    #upload_files()
-    #deploy_webpage()
+    upload_files()
+    deploy_webpage()
 
-    #iam_setup()
-    #lambda_deploy()
+    iam_setup()
+    lambda_deploy()
 
     create_rest_api()
